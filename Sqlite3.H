@@ -24,15 +24,12 @@ namespace SQL{
 
 	template <>
 		int get_single(sqlite3 *db,sqlite3_stmt* ppsm, int iCol){
-			int ret;
-			ret = sqlite3_column_int(ppsm, iCol);
-			std::cout <<sqlite3_errmsg(db) <<std::endl;
-			if(sqlite3_errcode(db) == SQLITE_OK){
-				return ret;
-			} else {
-				throw(SQLRTerror(sqlite3_errmsg(db)));
-			}
-
+			return sqlite3_column_int(ppsm, iCol);
+		}
+	
+	template <>
+		double get_single(sqlite3 *db,sqlite3_stmt* ppsm, int iCol){
+			return sqlite3_column_double(ppsm, iCol);
 		}
 
 	template <>
