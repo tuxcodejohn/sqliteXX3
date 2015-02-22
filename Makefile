@@ -1,5 +1,9 @@
 
+all: test/test.db test/sqltest 
 
-sqltest: Sqlite3.H sqltest.cc
-	clang++ -std=c++11 sqltest.cc -Wall -ggdb -lsqlite3 -o $@ 
+test/test.db:
+	sqlite3  $@  < test/mk.sql 
+
+test/sqltest: Sqlite3.H ./test/sqltest.cc
+	g++ -std=c++14 test/sqltest.cc -I.  -Wall -ggdb -lsqlite3 -o $@ 
 

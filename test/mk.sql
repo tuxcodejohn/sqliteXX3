@@ -1,0 +1,10 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE a (a integer,b text, c REAL);
+INSERT INTO "a" VALUES(1 , 'test'       , 0);
+INSERT INTO "a" VALUES(2 , 'foo_zwo'    , 0.1);
+INSERT INTO "a" VALUES(3 , 'foo_treye'  , 0.2);
+INSERT INTO "a" VALUES(4 , 'foo_fira'   , 0.333);
+INSERT INTO "a" VALUES(5 , 'foo_finnef' , 0.4);
+INSERT INTO "a" VALUES(6 , 'foo_seggs'  , -0.6);
+COMMIT;

@@ -1,9 +1,13 @@
 
 
-Variadic Template Test Foo!
+SQLite3 Variadic Template Test Foo!
 
 -------
 
 Hope this becomes once a usable sqlite3 binding for modern C++.
 
-For now it suffers from Compilerbugs :-)
+It suffers from bugs in gcc up to 4.9.1. 
+
+Working as far as tested afterwards. 
+(Ummm there was not too much serious testing applied...)
+

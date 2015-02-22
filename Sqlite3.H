@@ -1,4 +1,4 @@
-
+#pragma once
 #include <sqlite3.h>
 #include <string>
 #include <tuple>
@@ -16,24 +16,25 @@ namespace SQL{
 
 	typedef std::runtime_error SQLRTerror;
 
-
 	template <typename T>
-		T get_single(sqlite3 *db, sqlite3_stmt* ppsm, int iCol){
+		T get_single(sqlite3_stmt* ppsm, int iCol){
 			return T();
+			(void)ppsm;
+			(void)iCol;
 		}
 
 	template <>
-		int get_single(sqlite3 *db,sqlite3_stmt* ppsm, int iCol){
+		int get_single(sqlite3_stmt* ppsm, int iCol){
 			return sqlite3_column_int(ppsm, iCol);
 		}
-	
+
 	template <>
-		double get_single(sqlite3 *db,sqlite3_stmt* ppsm, int iCol){
+		double get_single(sqlite3_stmt* ppsm, int iCol){
 			return sqlite3_column_double(ppsm, iCol);
 		}
 
 	template <>
-		std::string get_single(sqlite3 *db, sqlite3_stmt *ppsm, int iCol){
+		std::string get_single(sqlite3_stmt *ppsm, int iCol){
 			const char * foo = reinterpret_cast<const char*>(sqlite3_column_text(ppsm,iCol));
 			return(string(foo));
 		}
@@ -72,6 +73,12 @@ class Con{
 				}
 			}
 
+			void bindvals(vector<string>&& vals){
+				int pos=0;
+				for(auto& v : vals){
+					sqlite3_bind_text(me,++pos,v.c_str(),v.size(),SQLITE_TRANSIENT);
+				}
+			}
 
 			~PPSM(){
 				sqlite3_finalize(me);
@@ -79,30 +86,28 @@ class Con{
 
 		};
 
-
-
 	public:
 
 		template<typename ...ARGS>
 		vector<tuple<ARGS...> > bindnquery(const string& query,
-				vector<string> bindvals={}){
-
+				vector<string>&& bindvals={}){
 			PPSM ppsm(db, query);
-			//binds....
-
+			ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
 			vector<tuple<ARGS...> > answer {};
-
 			while (sqlite3_step(ppsm.me) == SQLITE_ROW){
 				int col = 0;
-				tuple<ARGS...> r { get_single<ARGS>(db,ppsm.me,col++)... };
+				tuple<ARGS...> r { get_single<ARGS>(ppsm.me,col++)... };
 				answer.push_back(r);
 			}
-
 			return answer;
-
 		}
 
+		//for  update and such.... 
+		void query_nothing(const string& query, vector<string>&& bindvals={}){
+				PPSM ppsm(db,query);
+				ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
+				sqlite3_step(ppsm.me);
+		}
 };
-
 
 }
