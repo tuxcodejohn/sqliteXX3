@@ -1,3 +1,4 @@
+
 #pragma once
 #include <sqlite3.h>
 #include <string>
@@ -88,15 +89,19 @@ class Con{
 
 	public:
 
+//> Within the initializer-list of a braced-init-list, the initializer-clauses, including any that result from pack expansions, are evaluated in the order in which they appear. That is, every value computation and side effect associated with a given initializer-clause is sequenced before every value computation and side effect associated with any initializer-clause that follows it in the comma-separated list of the initializer-list. 
+
 		template<typename ...ARGS>
-		vector<tuple<ARGS...> > bindnquery(const string& query,
+		vector<tuple<ARGS...>> bindnquery(const string& query,
 				vector<string>&& bindvals={}){
 			PPSM ppsm(db, query);
 			ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
 			vector<tuple<ARGS...> > answer {};
+
 			while (sqlite3_step(ppsm.me) == SQLITE_ROW){
 				int col = 0;
-				tuple<ARGS...> r { get_single<ARGS>(ppsm.me,col++)... };
+				#pragma GCC diagnostic ignored "-Wsequence-point"
+				tuple<ARGS...> r { get_single<ARGS>(ppsm.me,(col++))... };
 				answer.push_back(r);
 			}
 			return answer;
