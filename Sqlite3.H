@@ -59,6 +59,11 @@ class Con{
 		}
 	}
 
+		~Con()
+		{
+			sqlite3_close(db);
+		}
+
 
 	private:
 		struct PPSM{
