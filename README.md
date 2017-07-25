@@ -1,13 +1,9 @@
-
-
-SQLite3 Variadic Template Test Foo!
-
+SQLite3 Variadic Template Bindings
 -------
 
-Hope this becomes once a usable sqlite3 binding for modern C++.
+This is a header only binding of sqlite3 lib for C++.
 
-It suffers from bugs in gcc up to 4.9.1. 
+It suffered from a bug concerning  gcc up to 4.9.1 at least on x86_64. Some 4.7 version
+for arm is know to work too.
 
-Working as far as tested afterwards. 
-(Ummm there was not too much serious testing applied...)
 

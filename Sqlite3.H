@@ -1,4 +1,3 @@
-
 #pragma once
 #include <sqlite3.h>
 #include <string>
@@ -6,6 +5,8 @@
 #include <vector>
 #include <exception>
 #include <memory>
+
+#include <cstdint>
 
 //DEBUG
 #include <iostream>
@@ -38,6 +39,11 @@ namespace SQL{
 		std::string get_single(sqlite3_stmt *ppsm, int iCol){
 			const char * foo = reinterpret_cast<const char*>(sqlite3_column_text(ppsm,iCol));
 			return(string(foo));
+		}
+
+	template <>
+		std::int64_t get_single(sqlite3_stmt *ppsm, int iCol){
+			return sqlite3_column_int64(ppsm, iCol);
 		}
 
 
@@ -94,7 +100,11 @@ class Con{
 
 	public:
 
-//> Within the initializer-list of a braced-init-list, the initializer-clauses, including any that result from pack expansions, are evaluated in the order in which they appear. That is, every value computation and side effect associated with a given initializer-clause is sequenced before every value computation and side effect associated with any initializer-clause that follows it in the comma-separated list of the initializer-list. 
+//> Within the initializer-list of a braced-init-list, the initializer-clauses, including
+// any that result from pack expansions, are evaluated in the order in which they appear.
+// That is, every value computation and side effect associated with a given initializer-clause
+// is sequenced before every value computation and side effect associated with any
+// initializer-clause that follows it in the comma-separated list of the initializer-list.
 
 		template<typename ...ARGS>
 		vector<tuple<ARGS...>> bindnquery(const string& query,
@@ -112,7 +122,7 @@ class Con{
 			return answer;
 		}
 
-		//for  update and such.... 
+		//for  update and such....
 		void query_nothing(const string& query, vector<string>&& bindvals={}){
 				PPSM ppsm(db,query);
 				ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
