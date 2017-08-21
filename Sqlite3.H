@@ -19,7 +19,7 @@ namespace SQL{
 	typedef std::runtime_error SQLRTerror;
 
 	template <typename T>
-		T get_single(sqlite3_stmt* ppsm, int iCol){
+		static T get_single(sqlite3_stmt* ppsm, int iCol){
 			return T();
 			(void)ppsm;
 			(void)iCol;
