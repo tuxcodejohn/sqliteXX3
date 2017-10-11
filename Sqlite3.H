@@ -4,6 +4,10 @@
 #include <tuple>
 #include <vector>
 #include <exception>
+extern "C"
+{
+	#include <sched.h>
+}
 #include <memory>
 
 #include <cstdint>
@@ -38,7 +42,7 @@ namespace SQL{
 	template <>
 		std::string get_single(sqlite3_stmt *ppsm, int iCol){
 			const char * foo = reinterpret_cast<const char*>(sqlite3_column_text(ppsm,iCol));
-			return(string(foo));
+			return(foo?string(foo):""s);
 		}
 
 	template <>
@@ -124,10 +128,27 @@ class Con{
 
 		//for  update and such....
 		void query_nothing(const string& query, vector<string>&& bindvals={}){
-				PPSM ppsm(db,query);
-				ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
-				sqlite3_step(ppsm.me);
+			PPSM ppsm(db,query);
+			ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
+			auto result = sqlite3_step(ppsm.me);
+			if(result ==SQLITE_BUSY){
+				do {
+					sched_yield();
+					result = sqlite3_step(ppsm.me);;
+				} while (result == SQLITE_BUSY);
+			}
 		}
+
+
+               template<typename QType>
+               QType query_one(const string & query, vector<string>&& bindvals={}){
+                       PPSM ppsm(db, query);
+                       ppsm.bindvals(std::forward<decltype(bindvals)>(bindvals));
+                       if(sqlite3_step(ppsm.me) != SQLITE_ROW){
+                               throw(std::runtime_error("Query did not yield answer:"+query));
+                       }
+                       return get_single<QType>(ppsm.me,0);
+               }
 };
 
 }
