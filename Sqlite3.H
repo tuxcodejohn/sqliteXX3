@@ -42,7 +42,7 @@ namespace SQL{
 	template <>
 		std::string get_single(sqlite3_stmt *ppsm, int iCol){
 			const char * foo = reinterpret_cast<const char*>(sqlite3_column_text(ppsm,iCol));
-			return(foo?string(foo):""s);
+			return(foo?string(foo):"");
 		}
 
 	template <>
