@@ -1,9 +1,15 @@
 
+#ifdef AAAA
 #include "Sqlite3.H"
+#else
+#include "Sqlite3.hh"
+#endif
 #include <iostream>
 #include <string>
+#include <type_traits>
 
 using std::string;
+
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__ ((unused)) )
 {
@@ -15,7 +21,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__ ((unused))
 	for (auto x:a){
 		std::cout << std::get<0>(x) << " " << std::get<1>(x) <<" " << std::endl;
 	}
-	std::cout << std::endl << 
+	std::cout << std::endl <<
 		"query mit binds: " << std::endl;
 	for (auto row: db.bindnquery<int,double>("SELECT a,c from a where b like ?1;", {"%fira"})){
 		std::cout << std::get<0>(row) << " " << std::get<1>(row) <<" " << std::endl;

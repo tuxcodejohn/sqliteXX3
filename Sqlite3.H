@@ -4,16 +4,7 @@
 #include <tuple>
 #include <vector>
 #include <exception>
-extern "C"
-{
-	#include <sched.h>
-}
-#include <memory>
-
 #include <cstdint>
-
-//DEBUG
-#include <iostream>
 
 namespace SQL{
 	using std::string;
@@ -23,44 +14,45 @@ namespace SQL{
 	typedef std::runtime_error SQLRTerror;
 
 	template <typename T>
-		static T get_single(sqlite3_stmt* ppsm, int iCol){
-			return T();
-			(void)ppsm;
-			(void)iCol;
-		}
+	static T get_single(sqlite3_stmt* ppsm, int iCol);
 
 	template <>
-		int get_single(sqlite3_stmt* ppsm, int iCol){
-			return sqlite3_column_int(ppsm, iCol);
-		}
+	inline int get_single(sqlite3_stmt* ppsm, int iCol)
+	{
+		return sqlite3_column_int(ppsm, iCol);
+	}
 
 	template <>
-		double get_single(sqlite3_stmt* ppsm, int iCol){
-			return sqlite3_column_double(ppsm, iCol);
-		}
+	inline double get_single(sqlite3_stmt* ppsm, int iCol)
+	{
+		return sqlite3_column_double(ppsm, iCol);
+	}
 
 	template <>
-		std::string get_single(sqlite3_stmt *ppsm, int iCol){
-			const char * foo = reinterpret_cast<const char*>(sqlite3_column_text(ppsm,iCol));
-			return(foo?string(foo):"");
-		}
+	inline std::string get_single(sqlite3_stmt *ppsm, int iCol)
+	{
+		const char * foo = reinterpret_cast<const char*>(
+			sqlite3_column_text(ppsm,iCol));
+		return(foo?string(foo):"");
+	}
 
 	template <>
-		std::int64_t get_single(sqlite3_stmt *ppsm, int iCol){
-			return sqlite3_column_int64(ppsm, iCol);
-		}
+	inline std::int64_t get_single(sqlite3_stmt *ppsm, int iCol)
+	{
+		return sqlite3_column_int64(ppsm, iCol);
+	}
 
 
 class Con{
 	protected:
-		sqlite3 *db;
+	sqlite3 *db;
 
 	private:
-		const string dbfilename;
+	const string dbfilename;
 
 	public:
-		Con(const string &dbfile):
-			dbfilename(dbfile)
+	Con(const string &dbfile):
+		dbfilename(dbfile)
 	{
 		int erg;
 		erg = sqlite3_open(dbfilename.c_str(),&db);
@@ -69,38 +61,39 @@ class Con{
 		}
 	}
 
-		~Con()
-		{
-			sqlite3_close(db);
-		}
+	~Con()
+	{
+		sqlite3_close(db);
+	}
 
 
 	private:
-		struct PPSM{
-			sqlite3_stmt * me;
+	struct PPSM
+	{
+		sqlite3_stmt * me;
 
-			PPSM(sqlite3 *db , const string &query):
-				me(nullptr)
-			{
-				if (sqlite3_prepare_v2( db, query.c_str(), query.size(),
-							&me, nullptr)
-						!= SQLITE_OK){
-					throw(SQLRTerror(sqlite3_errmsg(db)));
-				}
+		PPSM(sqlite3 *db , const string &query):
+			me(nullptr)
+		{
+			if (sqlite3_prepare_v2( db, query.c_str(), query.size(),
+						&me, nullptr)
+					!= SQLITE_OK){
+				throw(SQLRTerror(sqlite3_errmsg(db)));
 			}
+		}
 
-			void bindvals(vector<string>&& vals){
-				int pos=0;
-				for(auto& v : vals){
-					sqlite3_bind_text(me,++pos,v.c_str(),v.size(),SQLITE_TRANSIENT);
-				}
+		void bindvals(vector<string>&& vals){
+			int pos=0;
+			for(auto& v : vals){
+				sqlite3_bind_text(me,++pos,v.c_str(),v.size(),SQLITE_TRANSIENT);
 			}
+		}
 
-			~PPSM(){
-				sqlite3_finalize(me);
-			}
+		~PPSM(){
+			sqlite3_finalize(me);
+		}
 
-		};
+	};
 
 	public:
 
